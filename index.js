@@ -53,8 +53,8 @@ buttons.forEach(function(element){
 });
 
 addFiles.addEventListener("click",async function(e){
-    let fileName = prompt("file name\nNOTE: if the file does not contain \".\",it will create a directory","");
-    if(fileName !== "" || fileName !== null){
+    let fileName = prompt("File name\n\nNOTE: if the file does not contain \".\",it will create a directory","");
+    if(fileName !== "" && fileName !== null){
         let formData = new FormData();
         formData.append("name",fileName);
 
@@ -66,7 +66,7 @@ addFiles.addEventListener("click",async function(e){
             const data = res.json();
             location.reload();
         }
-    }else{
+    }else if(fileName === "") {
         alert("file name cant be empty");
     }
 });
@@ -105,11 +105,11 @@ sort.addEventListener("click",function(e){
             if (eleOrderd == eleNotOrderd.firstChild.textContent) {
                 liOrdered.push(eleNotOrderd);
                 eleNotOrderd.remove();
+                liOrdered.forEach(function(orderedEements){
+                    showFiles.appendChild(orderedEements);
+                });
             }
         }
-    });
-    liOrdered.forEach(function(orderedEements){
-        showFiles.appendChild(orderedEements);
     });
 });
 
