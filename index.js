@@ -3,6 +3,7 @@ let showFiles = document.getElementById("files");
 let buttons = document.querySelectorAll("button");
 let search = document.getElementById("search");
 let del = document.getElementById("del");
+let sort = document.getElementById("sort");
 const fileSelected = [];
 
 window.addEventListener("load",async function(e){
@@ -85,6 +86,31 @@ del.addEventListener("click",async function(e){
             location.reload();
         }
     }
+});
+
+sort.addEventListener("click",function(e){
+    const sortFiles = Array.from(showFiles.children);
+    const fileNameArr = [];
+    const liOrdered = [];
+    for (let index = 1; index < sortFiles.length; index++) {
+        const element = sortFiles[index];
+        fileNameArr.push(element.firstChild.textContent);
+    }
+    fileNameArr.sort(function(a, b){
+        return a.localeCompare(b);
+    });
+    fileNameArr.forEach(function(eleOrderd){
+        for (let index = 1; index < sortFiles.length; index++) {
+            const eleNotOrderd = sortFiles[index];
+            if (eleOrderd == eleNotOrderd.firstChild.textContent) {
+                liOrdered.push(eleNotOrderd);
+                eleNotOrderd.remove();
+            }
+        }
+    });
+    liOrdered.forEach(function(orderedEements){
+        showFiles.appendChild(orderedEements);
+    });
 });
 
 search.addEventListener("keyup", function(e){
