@@ -1,30 +1,37 @@
 <?php
 
+function deleteDirectory($dir) {
+    if (!file_exists($dir)) {
+        return;
+    }
+
+    $files = glob($dir . '/*');
+    foreach ($files as $file) {
+        if (is_dir($file)) {
+            deleteDirectory($file);
+        } else {
+            unlink($file);
+        }
+    }
+
+    rmdir($dir);
+}
+
 include_once "db.php";
 $database = new db("localhost","root","Albion@123","fileManeger");
 
 $json = file_get_contents('php://input');
 if(!empty($json)){
     $data = json_decode($json);
-    foreach($data as $filename){
-        $filetype = $database->selectType($filename);
-        if($filetype == "directory"){
-            $dir = scandir("./files/$filename");
-            if ($dir !== false && count($dir) > 2) {
-                foreach ($dir as $file) {
-                    $filepath = "./files/$filename". '/' . $file;
-                    if (is_file($filepath)) {
-                        unlink($filepath);
-                    }
-                }
-                $database->delete($filename);
-            }else{
-                rmdir("./files/$filename");
-                $database->delete($filename);
-            }
-        }else{
-            $database->delete($filename);
-            unlink("./files/$filename");
+    foreach($data as $files){
+        if ($database->selectType($files) === "file") {
+            $filePath = glob("./*/$files");
+            unlink($filePath[0]);
+            $database->delete($files);
+        }else {
+            $dirPath = glob("./*/$files");
+            deleteDirectory($dirPath[0]);
+            $database->delete($files);
         }
     }
 }
