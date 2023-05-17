@@ -4,38 +4,48 @@ let buttons = document.querySelectorAll("button");
 let search = document.getElementById("search");
 let del = document.getElementById("del");
 let sort = document.getElementById("sort");
+let copy = document.getElementById("copy");
+
 const fileSelected = [];
 
 window.addEventListener("load",async function(e){
     const res = await fetch("show.php?show=1");
     const data = await res.json();
+
     if (data.length !== 0) {
         data.forEach(function(element){
             let lis = document.createElement("li");
             let select = document.createElement("input");
             select.type = "radio";
+
             for (let index = 1; index < element.length; index++) {
                 const elementToShow = element[index];
                 let par = document.createElement("p");
                 par.appendChild(document.createTextNode(elementToShow));
                 lis.appendChild(par);
             }
+
             showFiles.appendChild(lis);
             lis.appendChild(select);
+
             let checkClick = 0;
             select.addEventListener("click", function(e){
                 let thisLi = this.parentElement;
                 let ArrThisLi = Array.from(thisLi.children);
                 checkClick++;
+
                 if (checkClick > 1) {
                     this.checked = false;
                     let index = fileSelected.indexOf(ArrThisLi[0].textContent);
+
                     if (index !== -1) {
                         fileSelected.splice(index,1);
                     }
                     checkClick = 0;
+
                 } else {
                     fileSelected.push(ArrThisLi[0].textContent);
+
                 }
             });
         });
@@ -44,16 +54,19 @@ window.addEventListener("load",async function(e){
 
 buttons.forEach(function(element){
     element.addEventListener("mouseover",function(e){
-        e.target.style.backgroundColor = "rgba(204, 133, 2, 0.479)";
+        this.style.backgroundColor = "rgba(204, 133, 2, 0.479)";
+
     });
 
     element.addEventListener("mouseout",function(e){
-        e.target.style.backgroundColor = "orange";
+        this.style.backgroundColor = "orange";
+        
     });
 });
 
 addFiles.addEventListener("click",async function(e){
     let fileName = prompt("File name\n\nNOTE: if the file does not contain \".\",it will create a directory","");
+    
     if(fileName !== "" && fileName !== null){
         let formData = new FormData();
         formData.append("name",fileName);
@@ -63,17 +76,23 @@ addFiles.addEventListener("click",async function(e){
                 method: 'POST',
                 body: formData}
                 );
+
             const data = res.json();
+            alert(data);
             location.reload();
+
         }
+
     }else if(fileName === "") {
         alert("file name cant be empty");
+
     }
 });
 
 del.addEventListener("click",async function(e){
     if(fileSelected.length === 0){
         alert("nothing to delete");
+
     }else {
         if(confirm("are you sure ?")){
             const res = await fetch("delete.php",{
@@ -82,6 +101,7 @@ del.addEventListener("click",async function(e){
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(fileSelected)
+
             });    
             location.reload();
         }
@@ -92,36 +112,70 @@ sort.addEventListener("click",function(e){
     const sortFiles = Array.from(showFiles.children);
     const fileNameArr = [];
     const liOrdered = [];
+
     for (let index = 1; index < sortFiles.length; index++) {
         const element = sortFiles[index];
         fileNameArr.push(element.firstChild.textContent);
+
     }
+
     fileNameArr.sort(function(a, b){
         return a.localeCompare(b);
+
     });
+
     fileNameArr.forEach(function(eleOrderd){
         for (let index = 1; index < sortFiles.length; index++) {
             const eleNotOrderd = sortFiles[index];
+
             if (eleOrderd == eleNotOrderd.firstChild.textContent) {
                 liOrdered.push(eleNotOrderd);
                 eleNotOrderd.remove();
-                liOrdered.forEach(function(orderedEements){
-                    showFiles.appendChild(orderedEements);
-                });
+
             }
         }
     });
+
+    liOrdered.forEach(function(orderedEements){
+        showFiles.appendChild(orderedEements);
+
+    });
+});
+
+copy.addEventListener("click",async function(e){
+    if(fileSelected.length === 0){
+        alert("nothing to copy");
+
+    }else {
+        if(confirm("are you sure ?")){
+            const res = await fetch("copy.php",{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(fileSelected)
+            });   
+            // const data = res.json();
+            // console.log(data);
+            location.reload();
+
+        }
+    }
 });
 
 search.addEventListener("keyup", function(e){
     let sBarToLow = e.target.value.toLowerCase();
     const li = Array.from(showFiles.children); 
+
     for (let index = 1; index < li.length; index++) {
         let nameToSearch = li[index].firstChild.textContent;
+
         if (nameToSearch.toLowerCase().indexOf(sBarToLow) != -1) {
             li[index].style.display = "flex";
+
         } else {
             li[index].style.display = "none";
+
         }
     }
 });
