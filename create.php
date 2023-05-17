@@ -5,18 +5,33 @@ $database = new db("localhost","root","Albion@123","fileManeger");
 if(isset($_POST["name"])){
     $fileName = $_POST["name"];
     $pattern = "/\./";
+
     if(preg_match($pattern,$fileName)){
         $fileType = "file";
-        $file = fopen("./files/$fileName","x+");
-        $fileSize = filesize("./files/$fileName");
-        $database->insert($fileName,"$fileSize byte",$fileType);
+        $filePath = "./files/$fileName";
+
+        if (!file_exists($filePath)) {
+            $file = fopen($filePath,"x+");
+            $fileSize = filesize($filePath);
+            $database->insert($fileName,"$fileSize byte",$fileType);
+            echo json_encode("success");
+
+        }else {
+            echo json_encode("file exists");
+        }
+
     }else{
         $fileType = "directory";
-        $dir = "./files/$fileName";
-        $fileSize = filesize("./files/$fileName");
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777);
+        $dirPath = "./files/$fileName";
+
+        if (!is_dir($dirPath)) {
+            mkdir($dirPath, 0777);
+            $fileSize = filesize($dirPath);
             $database->insert($fileName,"$fileSize byte",$fileType);
+            echo json_encode("success");
+
+        }else {
+            echo json_encode("directory exists");
         }
     }
 
