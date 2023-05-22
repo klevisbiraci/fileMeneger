@@ -5,15 +5,16 @@ let search = document.getElementById("search");
 let del = document.getElementById("del");
 let sort = document.getElementById("sort");
 let copy = document.getElementById("copy");
+let rename = document.getElementById("rename");
 
 const fileSelected = [];
 
-window.addEventListener("load",async function(e){
+window.addEventListener("load",async function(e) {
     const res = await fetch("show.php?show=1");
     const data = await res.json();
 
     if (data.length !== 0) {
-        data.forEach(function(element){
+        data.forEach(function(element) {
             let lis = document.createElement("li");
             let select = document.createElement("input");
             select.type = "radio";
@@ -29,7 +30,7 @@ window.addEventListener("load",async function(e){
             lis.appendChild(select);
 
             let checkClick = 0;
-            select.addEventListener("click", function(e){
+            select.addEventListener("click", function(e) {
                 let thisLi = this.parentElement;
                 let ArrThisLi = Array.from(thisLi.children);
                 checkClick++;
@@ -52,49 +53,49 @@ window.addEventListener("load",async function(e){
     }
 });
 
-buttons.forEach(function(element){
-    element.addEventListener("mouseover",function(e){
+buttons.forEach(function(element) {
+    element.addEventListener("mouseover",function(e) {
         this.style.backgroundColor = "rgba(204, 133, 2, 0.479)";
 
     });
 
-    element.addEventListener("mouseout",function(e){
+    element.addEventListener("mouseout",function(e) {
         this.style.backgroundColor = "orange";
         
     });
 });
 
-addFiles.addEventListener("click",async function(e){
+addFiles.addEventListener("click",async function(e) {
     let fileName = prompt("File name\n\nNOTE: if the file does not contain \".\",it will create a directory","");
     
-    if(fileName !== "" && fileName !== null){
+    if (fileName !== "" && fileName !== null) {
         let formData = new FormData();
         formData.append("name",fileName);
 
-        if(confirm("are you sure")){
+        if (confirm("are you sure")) {
             const res = await fetch("create.php",{
                 method: 'POST',
-                body: formData}
-                );
+                body: formData
+            });
 
-            const data = res.json();
+            const data = await res.json();
             alert(data);
             location.reload();
 
         }
 
-    }else if(fileName === "") {
+    } else if(fileName === "") {
         alert("file name cant be empty");
 
     }
 });
 
-del.addEventListener("click",async function(e){
-    if(fileSelected.length === 0){
+del.addEventListener("click",async function(e) {
+    if (fileSelected.length === 0) {
         alert("nothing to delete");
 
-    }else {
-        if(confirm("are you sure ?")){
+    } else {
+        if (confirm("are you sure ?")) {
             const res = await fetch("delete.php",{
                 method: 'POST',
                 headers: {
@@ -108,7 +109,7 @@ del.addEventListener("click",async function(e){
     }
 });
 
-sort.addEventListener("click",function(e){
+sort.addEventListener("click",function(e) {
     const sortFiles = Array.from(showFiles.children);
     const fileNameArr = [];
     const liOrdered = [];
@@ -119,12 +120,12 @@ sort.addEventListener("click",function(e){
 
     }
 
-    fileNameArr.sort(function(a, b){
+    fileNameArr.sort(function(a, b) {
         return a.localeCompare(b);
 
     });
 
-    fileNameArr.forEach(function(eleOrderd){
+    fileNameArr.forEach(function(eleOrderd) {
         for (let index = 1; index < sortFiles.length; index++) {
             const eleNotOrderd = sortFiles[index];
 
@@ -136,18 +137,18 @@ sort.addEventListener("click",function(e){
         }
     });
 
-    liOrdered.forEach(function(orderedEements){
+    liOrdered.forEach(function(orderedEements) {
         showFiles.appendChild(orderedEements);
 
     });
 });
 
-copy.addEventListener("click",async function(e){
-    if(fileSelected.length === 0){
+copy.addEventListener("click",async function(e) {
+    if (fileSelected.length === 0) {
         alert("nothing to copy");
 
-    }else {
-        if(confirm("are you sure ?")){
+    } else {
+        if(confirm("are you sure ?")) {
             const res = await fetch("copy.php",{
                 method: 'POST',
                 headers: {
@@ -155,15 +156,34 @@ copy.addEventListener("click",async function(e){
                 },
                 body: JSON.stringify(fileSelected)
             });   
-            // const data = res.json();
-            // console.log(data);
+
             location.reload();
 
         }
     }
 });
 
-search.addEventListener("keyup", function(e){
+rename.addEventListener("click",function(e) {
+    fileSelected.forEach(async function(element) {
+        let newName = prompt("enter a new name");
+        let formData = new FormData();
+        
+        if (newName !== "" && newName !== null) {
+            formData.append("new",newName);
+            formData.append("old",element);
+            const res = await fetch("move.php",{
+                method: 'POST',
+                body: formData
+            });
+    
+            const data = res;
+            console.log(data.json());
+        }
+    });  
+    location.reload();      
+});    
+
+search.addEventListener("keyup", function(e) {
     let sBarToLow = e.target.value.toLowerCase();
     const li = Array.from(showFiles.children); 
 

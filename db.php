@@ -39,6 +39,11 @@ class db{
         $query = "DELETE FROM $this->tableName WHERE filename = '$filename'";
         $this->con->query($query);
     }
+
+    public function update($oldName,$newName){
+        $query = "UPDATE $this->tableName SET filename = '$newName' WHERE filename = '$oldName'";
+        $this->con->query($query);
+    }
 }
 
 ?>
