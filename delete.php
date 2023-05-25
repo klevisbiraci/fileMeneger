@@ -1,25 +1,10 @@
 <?php
 
-function deleteDirectory($dir) {
-    if (!file_exists($dir)) {
-        return;
-    }
-    
-    $files = glob($dir . '/*');
-    foreach ($files as $file) {
-        if (is_dir($file)) {
-            deleteDirectory($file);
-
-        } else {
-            unlink($file);
-        }
-    }
-    
-    rmdir($dir);
-}
-
 include_once "db.php";
+include_once "recursion.php";
+
 $database = new db("localhost","root","Albion@123","fileManeger");
+$recFunc = new rec();
 
 $json = file_get_contents('php://input');
 
@@ -28,14 +13,17 @@ if(!empty($json)){
 
     foreach($data as $files){
         if ($database->selectType($files) === "file") {
-            $filePath = glob("./*/$files");
+            $filePath = $recFunc->searchFiles("./files",$files,"file");// $filePath = glob("./*/$files");
             unlink($filePath[0]);
             $database->delete($files);
 
         }else {
-            $dirPath = glob("./*/$files");
-            deleteDirectory($dirPath[0]);
+            $dirPath = $recFunc->searchFiles("./files",$files,"directory");//glob("./*/$files");
+            echo json_encode($dirPath[0]);
+            $recFunc->deleteDirectory($dirPath[0]);
             $database->delete($files);
+            $database->deleteToDir($files);
+            
         }
     }
 }

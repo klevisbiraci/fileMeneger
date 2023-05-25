@@ -1,31 +1,10 @@
 <?php
 
-function copyDirectory($source, $destination) {
-    if (!is_dir($destination)) {
-        mkdir($destination);
-    }
-    
-    $dir = opendir($source);
-    while (($file = readdir($dir)) !== false) {
-        if ($file == '.' || $file == '..') {
-            continue;
-        }
-
-        $sourceFile = $source . '/' . $file;
-        $destinationFile = $destination . '/' . $file;
-        if (is_dir($sourceFile)) {
-            copyDirectory($sourceFile, $destinationFile);
-
-        } else {
-            copy($sourceFile, $destinationFile);
-
-        }
-    }
-    closedir($dir);
-}
-
 include_once "db.php";
+include_once "recursion.php";
+
 $database = new db("localhost","root","Albion@123","fileManeger");
+$recFunc = new rec();
 
 $json = file_get_contents('php://input');
 if(!empty($json)){
@@ -37,10 +16,22 @@ if(!empty($json)){
     foreach ($data as $files) {
         if (preg_match($pattern,$files)) {
             $searchFiles = preg_replace($pattern,"",$files);
-            $allFiles = glob("./*/$searchFiles*");
+            if ($database->selectType($files) === "file") {
+                $allFiles = $recFunc->searchFiles("./files","$searchFiles*","file");//glob("./*/$searchFiles*");
+            
+            } else {
+                $allFiles = $recFunc->searchFiles("./files","$searchFiles*","directory");
+
+            }
 
         } else {
-            $allFiles = glob("./*/$files*");
+            if ($database->selectType($files) === "file") {
+                $allFiles = $recFunc->searchFiles("./files","$files*","file");//glob("./*/$files*");
+            
+            } else {
+                $allFiles = $recFunc->searchFiles("./files","$files*","directory");
+
+            }
 
         }    
 
@@ -63,9 +54,10 @@ if(!empty($json)){
                         fclose($file);
                     }                
                 } else {
-                    copyDirectory($lastFileFound,$newPath);
+                    $recFunc->copyDirectory($lastFileFound,$newPath);
                     $fileSize = filesize($newPath);
                     $database->insert($newFile,"$fileSize byte","directory");
+                    $database->insertToDir($newFile,$fileSize." byte");
                 }
 
             } else {
@@ -80,9 +72,10 @@ if(!empty($json)){
                         fclose($file);
                     }
                 } else {
-                    copyDirectory($lastFileFound,$newPath);
+                    $recFunc->copyDirectory($lastFileFound,$newPath);
                     $fileSize = filesize($newPath);
                     $database->insert($newFile,"$fileSize byte","directory");
+                    $database->insertToDir($newFile,$fileSize." byte");
                 }
             }
         } 

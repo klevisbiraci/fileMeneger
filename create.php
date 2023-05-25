@@ -13,11 +13,13 @@ if(isset($_POST["name"])){
         if (!file_exists($filePath)) {
             $file = fopen($filePath,"x+");
             $fileSize = filesize($filePath);
-            $database->insert($fileName,"$fileSize byte",$fileType);
+            $database->insert($fileName,$fileSize." byte",$fileType);
             echo json_encode("success");
+            fclose($file);
 
         }else {
             echo json_encode("file exists");
+            
         }
 
     }else{
@@ -27,15 +29,14 @@ if(isset($_POST["name"])){
         if (!is_dir($dirPath)) {
             mkdir($dirPath, 0777);
             $fileSize = filesize($dirPath);
-            $database->insert($fileName,"$fileSize byte",$fileType);
+            $database->insert($fileName,$fileSize." byte",$fileType);
+            $database->insertToDir($fileName,$fileSize." byte");
             echo json_encode("success");
 
         }else {
             echo json_encode("directory exists");
         }
     }
-
-    fclose($file);
 }
 
 ?>
