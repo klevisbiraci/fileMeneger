@@ -13,17 +13,28 @@ if(!empty($json)){
 
     foreach($data as $files){
         if ($database->selectType($files) === "file") {
-            $filePath = $recFunc->searchFiles("./files",$files,"file");// $filePath = glob("./*/$files");
+            $filePath = $recFunc->searchFiles("./files",$files,"file");
             unlink($filePath[0]);
             $database->delete($files);
 
         }else {
-            $dirPath = $recFunc->searchFiles("./files",$files,"directory");//glob("./*/$files");
-            echo json_encode($dirPath[0]);
+            $dirPath = $recFunc->searchFiles("./files",$files,"directory");
+            $dirID = $database->selectDirID($files);
             $recFunc->deleteDirectory($dirPath[0]);
             $database->delete($files);
             $database->deleteToDir($files);
+            $database->deleteToFilesInside($dirID);
             
+            $allDirInfo = $database->selectToDir();
+            $allDir = $allDirInfo->fetch_all();
+            
+            foreach($allDir as $dirName) {
+                $find = $recFunc->searchFiles("./files",$dirName[1],"directory");
+                if (!is_dir($find[0])) {
+                    $database->deleteToDir($dirName[1]);
+
+                }
+            }
         }
     }
 }

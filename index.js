@@ -6,6 +6,11 @@ let del = document.getElementById("del");
 let sort = document.getElementById("sort");
 let copy = document.getElementById("copy");
 let rename = document.getElementById("rename");
+let move = document.getElementById("move");
+let dirList = document.getElementById("directories");
+let popup = document.getElementById("cover");
+
+let dirSelected;
 
 const fileSelected = [];
 
@@ -30,7 +35,7 @@ window.addEventListener("load",async function(e) {
             lis.appendChild(select);
 
             let checkClick = 0;
-            select.addEventListener("click", function(e) {
+            select.addEventListener("click",function(e) {
                 let thisLi = this.parentElement;
                 let ArrThisLi = Array.from(thisLi.children);
                 checkClick++;
@@ -48,6 +53,76 @@ window.addEventListener("load",async function(e) {
                     fileSelected.push(ArrThisLi[0].textContent);
 
                 }
+            });
+        });
+    }
+
+    const resDir = await fetch("show.php?showDir=1");
+    const dataDir = await resDir.json();
+
+    if (dataDir.length !== 0) {
+        dataDir.forEach(function(element){
+            let dir = document.createElement("li");
+            let dirName = document.createElement("button");
+
+            dirName.appendChild(document.createTextNode(element[1]));
+            dir.appendChild(dirName);
+            dirList.appendChild(dir);
+
+        });
+
+        let canceLpopup = document.getElementById("cancel");
+        let dirButtons = Array.from(dirList.children);
+
+        dirButtons.forEach(function(element) {
+            element.firstChild.addEventListener("mouseover",function(e) {
+                this.style.backgroundColor = "rgba(204, 133, 2, 0.479)";
+        
+            });
+
+            element.firstChild.addEventListener("mouseout",function(e) {
+                this.style.backgroundColor = "orange";
+                
+            });
+
+            element.firstChild.addEventListener("click", async function(e){
+                dirSelected = this.textContent;
+                popup.style.display = "none";
+
+                if (dirSelected !== null && dirSelected !== undefined) {
+                    let violation = 0;
+                    fileSelected.forEach(function(file) {
+                        if (file === dirSelected) {
+                            violation++;
+
+                        }
+                    });
+
+                    if (violation !== 0) {
+                        alert("you tried to insert a directory inside itself");
+
+                    } else {
+                        let formData = new FormData();
+                        formData.append("dir",dirSelected);
+                        formData.append("files",fileSelected);
+            
+                        const res = await fetch("move.php",{
+                            method: 'POST',
+                            body: formData
+                        });
+                
+                        // location.reload();
+                        const data = res;
+                        console.log(data);
+                        console.log(await data.json());
+                        
+                    }
+                }
+            });
+
+            canceLpopup.addEventListener("click",function(e){
+                popup.style.display = "none";
+                    
             });
         });
     }
@@ -84,7 +159,7 @@ addFiles.addEventListener("click",async function(e) {
 
         }
 
-    } else if(fileName === "") {
+    } else if (fileName === "") {
         alert("file name cant be empty");
 
     }
@@ -104,6 +179,8 @@ del.addEventListener("click",async function(e) {
                 body: JSON.stringify(fileSelected)
 
             });    
+            // const data = await res.json();
+            // console.log(data);
             location.reload();
         }
     }
@@ -164,26 +241,47 @@ copy.addEventListener("click",async function(e) {
 });
 
 rename.addEventListener("click",function(e) {
-    fileSelected.forEach(async function(element) {
-        let newName = prompt("enter a new name");
-        let formData = new FormData();
+    if (fileSelected.length === 0) {
+        alert("nothing to rename");
         
-        if (newName !== "" && newName !== null) {
-            formData.append("new",newName);
-            formData.append("old",element);
-            const res = await fetch("move.php",{
-                method: 'POST',
-                body: formData
-            });
-    
-            const data = res;
-            console.log(data.json());
-        }
-    });  
-    location.reload();      
+    } else {
+        fileSelected.forEach(async function(element) {
+            let newName = prompt("enter a new name");
+            let formData = new FormData();
+            
+            if (newName !== "" && newName !== null) {
+                formData.append("new",newName);
+                formData.append("old",element);
+                const res = await fetch("move.php",{
+                    method: 'POST',
+                    body: formData
+                });
+        
+                const data = res;
+                console.log(data.json());
+            }
+        });  
+        location.reload();
+    }
 });    
 
-search.addEventListener("keyup", function(e) {
+move.addEventListener("click",function() {
+    let dirUl = document.getElementById("directories");
+    let dirLi = Array.from(dirUl.children);
+
+    if (fileSelected.length === 0) {
+        alert("nothing to move");
+
+    } else if (dirLi.length === 0) {
+        alert("no directories");
+        
+    } else {
+        popup.style.display = "block";
+
+    }
+});
+
+search.addEventListener("keyup",function(e) {
     let sBarToLow = e.target.value.toLowerCase();
     const li = Array.from(showFiles.children); 
 
