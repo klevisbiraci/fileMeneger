@@ -17,7 +17,7 @@ if(isset($_POST["name"])){
             echo json_encode("success");
             fclose($file);
 
-        }else {
+        } else {
             echo json_encode("file exists");
             
         }
@@ -30,10 +30,10 @@ if(isset($_POST["name"])){
             mkdir($dirPath, 0777);
             $fileSize = filesize($dirPath);
             $database->insert($fileName,$fileSize." byte",$fileType);
-            $database->insertToDir($fileName,$fileSize." byte");
+            $database->insertToDir($fileName,$fileSize." byte",$dirPath);
             echo json_encode("success");
 
-        }else {
+        } else {
             echo json_encode("directory exists");
         }
     }

@@ -13,7 +13,7 @@ if (isset($_POST["old"]) && isset($_POST["new"])) {
     $patternArr = [];
 
     if ($database->selectType($file) === "file") {
-        $file = $recFunc->searchFiles("./files",$oldName,"file");//glob("./*/$oldName");
+        $file = $recFunc->searchFiles("./files",$oldName,"file");
         
     } else {
         $file = $recFunc->searchFiles("./files",$oldName,"directory");
@@ -62,6 +62,7 @@ if (isset($_POST["dir"]) && isset($_POST["files"])) {
             $dirId = $database->selectDirID($dir);
             $fileSize = filesize($destination);
             $database->insertToFilesInside($dirId,$file,$fileSize,"directory");
+            $database->updateDirPath($file,$destination);
             $database->delete($file);
 
         }

@@ -65,7 +65,7 @@ window.addEventListener("load",async function(e) {
             let dir = document.createElement("li");
             let dirName = document.createElement("button");
 
-            dirName.appendChild(document.createTextNode(element[1]));
+            dirName.appendChild(document.createTextNode(element));
             dir.appendChild(dirName);
             dirList.appendChild(dir);
 
@@ -96,6 +96,7 @@ window.addEventListener("load",async function(e) {
                             violation++;
 
                         }
+
                     });
 
                     if (violation !== 0) {
@@ -111,10 +112,7 @@ window.addEventListener("load",async function(e) {
                             body: formData
                         });
                 
-                        // location.reload();
-                        const data = res;
-                        console.log(data);
-                        console.log(await data.json());
+                        location.reload();
                         
                     }
                 }
@@ -179,8 +177,7 @@ del.addEventListener("click",async function(e) {
                 body: JSON.stringify(fileSelected)
 
             });    
-            // const data = await res.json();
-            // console.log(data);
+            
             location.reload();
         }
     }
@@ -233,7 +230,7 @@ copy.addEventListener("click",async function(e) {
                 },
                 body: JSON.stringify(fileSelected)
             });   
-
+            
             location.reload();
 
         }

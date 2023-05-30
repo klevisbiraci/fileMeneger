@@ -3,8 +3,8 @@
 class db {
     public $con;
     public $tableName = "files";
-    public $dirTable = "dir";
-    public $fileInsideTable = "filesInside";
+    public $tableName2 = "dir";
+    public $tableName3 = "filesInside";
 
     public function __construct($hostname,$username,$password,$dbName) {
         $this->con = new mysqli($hostname,$username,$password,$dbName);
@@ -54,31 +54,31 @@ class db {
 
     }
 
-    public function insertToDir($dirName,$dirSize) {
+    public function insertToDir($dirName,$dirSize,$dirPath) {
         $time = time();
         $date = date("Y-m-d H-i-s",$time);
-        $query = "INSERT INTO $this->dirTable(dirName,fileSize,date)
-            VALUES('$dirName','$dirSize','$date')";
+        $query = "INSERT INTO $this->tableName2(dirName,fileSize,date,dirpath)
+            VALUES('$dirName','$dirSize','$date','$dirPath')";
 
         $this->con->query($query); 
         
     }
 
     public function deleteToDir($dirName) {
-        $query = "DELETE FROM $this->dirTable WHERE dirName = '$dirName'";
+        $query = "DELETE FROM $this->tableName2 WHERE dirName = '$dirName'";
         $this->con->query($query);
 
     }
 
     public function selectToDir() {
-        $query = "SELECT * FROM $this->dirTable";
+        $query = "SELECT * FROM $this->tableName2";
         return $this->con->query($query); 
 
     }
 
     public function selectDirID($dirName) {
         $id = null;
-        $query = "SELECT id FROM $this->dirTable WHERE dirName = '$dirName'";
+        $query = "SELECT id FROM $this->tableName2 WHERE dirName = '$dirName'";
         $exeQ = $this->con->query($query); 
         $idArr = $exeQ->fetch_all();
         
@@ -94,7 +94,7 @@ class db {
     public function insertToFilesInside($dirID,$fileName,$fileSize,$fileType) {
         $time = time();
         $date = date("Y-m-d H-i-s",$time);
-        $query = "INSERT INTO $this->fileInsideTable(filename,filesize,date,dirID,filetype)
+        $query = "INSERT INTO $this->tableName3(filename,filesize,date,dirID,filetype)
             VALUES('$fileName','$fileSize','$date','$dirID','$fileType')";
         
         $this->con->query($query); 
@@ -102,9 +102,15 @@ class db {
     }
 
     public function deleteToFilesInside($dirID) {
-        $query = "DELETE FROM $this->fileInsideTable WHERE dirID = '$dirID'";
+        $query = "DELETE FROM $this->tableName3 WHERE dirID = '$dirID'";
         $this->con->query($query);
 
+    }
+
+    public function updateDirPath($dirName,$newPath) {
+        $query = "UPDATE $this->tableName2 SET dirpath = '$newPath'
+            WHERE dirName = '$dirName'";
+        $this->con->query($query);
     }
     
 }

@@ -10,8 +10,22 @@ if (isset($_GET["show"])) {
 }
 
 if (isset($_GET["showDir"])) {
-    $response = $database->selectToDir();
-    echo json_encode($response->fetch_all());
+    $exeQ = $database->selectToDir();
+    $allDir = $exeQ->fetch_all();
+    $response = [];
+
+    foreach($allDir as $dir) {
+        $dirFound = glob("./files/$dir[1]");
+
+        if (sizeof($dirFound) !== 0) {
+            array_push($response,$dir[1]);
+
+        }
+
+    }
+    
+    echo json_encode($response);
 
 }
+
 ?>
