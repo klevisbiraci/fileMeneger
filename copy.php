@@ -73,7 +73,7 @@ if (!empty($json)) {
                     $recFunc->copyDirectory($lastFileFound,$newPath);
                     $fileSize = filesize($newPath);
                     $database->insert($newFile,"$fileSize byte","directory");
-                    $database->insertToDir($newFile,$fileSize." byte");
+                    $database->insertToDir($newFile,$fileSize." byte",$newPath);
 
                 }
 
@@ -94,7 +94,7 @@ if (!empty($json)) {
                     $recFunc->copyDirectory($lastFileFound,$newPath);
                     $fileSize = filesize($newPath);
                     $database->insert($newFile,"$fileSize byte","directory");
-                    $database->insertToDir($newFile,$fileSize." byte");
+                    $database->insertToDir($newFile,$fileSize." byte",$newPath);
 
                 }
             }
