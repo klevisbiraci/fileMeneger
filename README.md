@@ -1,5 +1,5 @@
 # fileMeneger
-  Requirement for the host:<br />
+  Requirements:<br />
   1.Linux machine <br />
   2.PHP version 8.1.7<br />
   3.Apache2<br />
